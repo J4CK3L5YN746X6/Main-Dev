@@ -1,78 +1,128 @@
-import os, time, sys
-# Basic Module import
-# Third Party Modules
+import os, time, sys, socket
 try:
-    import colorama
-    from colorama import Fore, Style, Back
+	import colorama
+	from colorama import Fore, Back, Style
+	colorama.init(autoreset=True)
 except:
-    print ' [!] Failed To import colorama module please do "pip install colorama"'
-    sys.exit(1)
-
-colorama.init(autoreset=True)
-
-class MainOps:
-
-    _Memory_ = {}
-   
-    # _template_ is the banner text, _type_ is the basic type entry, _msg_ is the message to print to screen, _ssv_ is the boolean variable to set start _Memory_ Placements n
-    def _RaiseMsg_(self, _template_='Basic', _type_=None, _msg_=None, _ssv_=False):
-
-        if _ssv_ == True:
-            # Create variables pre-proccess
-            # Color Append Open
-            self._Memory_['system.msg.fore_green']    = Fore.GREEN
-            self._Memory_['system.msg.fore_red']      = Fore.RED
-            self._Memory_['system.msg.fore_blue']     = Fore.BLUE
-            self._Memory_['system.msg.fore_yellow']   = Fore.YELLOW
-            self._Memory_['system.msg.fore_white']    = Fore.WHITE
-            self._Memory_['system.msg.fore_magenta']  = Fore.MAGENTA
-            self._Memory_['system.msg.fore_reset']    = Fore.RESET
-            self._Memory_['system.msg.back_green']    = Back.GREEN
-            self._Memory_['system.msg.back_red']      = Back.RED
-            self._Memory_['system.msg.back_blue']     = Back.BLUE
-            self._Memory_['system.msg.back_yellow']   = Back.YELLOW
-            self._Memory_['system.msg.back_white']    = Back.WHITE
-            self._Memory_['system.msg.back_magenta']  = Back.MAGENTA
-            self._Memory_['system.msg.back_reset']    = Back.RESET
-            self._Memory_['system.msg.style_dim']     = Style.DIM
-            self._Memory_['system.msg.style_nor']     = Style.NORMAL
-            self._Memory_['system.msg.style_bri']     = Style.BRIGHT
-            self._Memory_['system.msg.style_res']     = Style.RESET
-            self._Memory_['system.msg.style_res-all'] = Style.RESET_ALL
-            # Color Appending End
-            # Template Appending Open
-            self._Memory_['system.msg.templates']         = [ 'Basic' ]
-            self._Memory_['system.msg.temp.heads']        = [ 'banner', 'warn', 'norm', 'crit' ]
-            self._Memory_['system.msg.temp.Basic.banner'] = Fore.GREEN  +' [ @'+Fore.RED   +time.asctime()+Fore.GREEN  +'] <-> '
-            self._Memory_['system.msg.temp.Basic.warn']   = Fore.RED    +' ['  +Fore.BLUE  +'WARNING '        +Fore.RED    +' -> '+Fore.WHITE
-            self._Memory_['system.msg.temp.Basic.norm']   = Fore.MAGENTA+' ['  +Fore.YELLOW+'NORMAL  '        +Fore,MAGENTA+' -> '+Fore.WHITE
-            self._Memory_['system.msg.temp.Basic.crit']   = Fore.RED    +' ['  +Fore.GREEN +'CRITICAL'        +Fore.RED    +' -> '+Fore.WHITE
-            # Template Append Close
-            return None
-
-        if _template_ not in self._Memory_['system.msg.templates']:
-            _template_ = 'Basic'
-            pass
-
-        if _type_ not in self._Memory_['system.msg.temp.heads']:
-            _type_ = 'crit'
-            _msg_  = 'Failed To Set Type Entered Exiting...'
-            pass
-
-
-        banner = self._Memory_['system.msg.'+str(_template_)+'.banner']
-        head   = self._Memory_['systen.msg.'+str(_template_)+'.'+str(_type_)]
-        print banner+head+_msg_
-        return None
-
-    # Start Up Object
-    def _StartUp_(self):
-        
-        self._RaiseMsg_(_ssv_=True)
-
+	print " Please Install Colorama To Continue ... 'pip install colorama'"
+	sys.exit(1)
+	
+# Memory Class 
+class Memory:
+	Cns 	= Console()
+	Memory = {
+		'setting:index':[ 'temp', 'mount@start' ], # setting index
+		'setting.temp':'', # template setting
+		'setting.mount@start':False, # mount plufins at start
+		'display:index':[ 'templates', 'messages' ] ,# display index
+		'display.templates:index':[ 'basic' ] ,# basic template
+		'display.templates:rules':'EXIST WARN+NORM+CRIT+BANN+INPUT' ,# rules must me inside string +
+		'display.templates.basic.WARN':Fore.RED+Style.BRIGHT+' [ WARNING ] '+Fore.GREEN+' <<:?:>> ', 
+		'display.templates.basic.NORM':Fore.GREEN+Style.BRIGHT+' [ NORMAL ] '+Fore.WHITE+' <<:?:>> ',
+		'display.templates.basic.CRIT':Fore.RED+Style.BRIGHT+' [ CRITICAL ] '+Fore.GREEN+' <<:?:>> ',
+		'display.templates.basic.BANN':"",
+		'display.templates.basic.INPUT':Fore.GREEN+' ['+str(socket.gethostname())+'] '+Fore.YELLOw+'    ?:>>',
+		'input:index':[ 'FILTER' ] ,
+		'input.FILTER:index':[ 'h1v3' ],
+		'input.Filter.h1v3:index':[]
+		
+	} 		# Main Memory Object 
+	
+	# Memory Handler 
+	def MemoryHandler(self, LOC=None, ACT=None, VAR=None, OVR=False):
+		# Check Actions
+		if ACT == None:
+			self.Cns.Display(head='WARN', msg=' No Action Entered...')
+			return None
+			
+		else:
+			# Append Action
+			if ACT in [ 'append', 'Append' ]:
+				if LOC in self.Memory:
+					if OVR == False:
+						self.Cns.Display(head='WARN', msg=' Overide Failed')
+						return None
+					else:
+						pass
+					
+					pass
+					
+				self.Memory[str(LOC)] = VAR
+				return None
+				
+			# Remove Action
+			elif ACT in [ 'remove', 'Remove' ]:
+				if LOC in self.Memory:
+					if OVR == False:
+						self.Cns.Display(head='WARN', msg=' Failed Overide Not allowed')
+						return None
+					del(self.Memory[str(LOC)])
+					return None
+				else:
+					self.Cns.Display(head='WARN', msg=' Memory Entity '+str(LOC)+' Does not Exist')
+					return None
+					
+			# Status Action
+			elif ACT in [ 'status', 'Status' ]:
+				if LOC in self.Memory:
+					status = self.Memory[str(LOC)]
+					return status
+				else:
+					self.Cns.Display(head='WARN', msg=' Memory Entity '+str(LOC)+' Does not Exists')
+					return None
+				
+			else:
+				self.Cns.Display(head='WARN', ' Action Does Not Exist')
+				return None
+				
+		
+	
+# Console Class
+class Console:
+	Mem = Memory()
+	
+	# Display Messages
+	def Display(self, head=None, msg=None, Input=False):
+		# Grab Template Core
+		temp = self.Mem.MemoryHandler(LOC='setting.temp', ACT='status')
+		# Check head Existence 
+		Location = 'display.tempalates.'+str(temp)
+		Index = self.Mem.MemoryHandler(LOC=Location+':index', ACT='status')
+		if head not in Index:
+			print ' Failed To Print MSG ...'+str(msg)
+			return None
+		Message_Head = self.Mem.MemoryHandler(LOC=Location+'.'+str(head), ACT='status')
+		MSG = Message_Head+str(msg)
+		print MSG
+		return None
+		
+	# Entry Handler
+	def EntryHandler(self, CMD, FILTER):
+		# Grab Filter Command Entries
+		Filters = self.Mem.MemoryHandler(LOC='input.filter:index', ACT='Status')
+		# Check Filter Existence 
+		if FILTER not in filters:
+			self.Display(head='WARN', msg=' Failed To Find Filter ')
+			return None
+		# Start Parser Based On Filter Index 
+		
+	# Start Console Object
+	def Start(self):
+		self.Display(head='BANN')
+		Running = True
+		while Running == True:
+			IO = self.Display(head='INPUT', Input=True)
+			FIN = self.EntryHandler(IO, 'CONS')
+			if FIN == True:
+				Runnning = False
+				
+		return None 
+	
 def Main():
-    
-    main = MainOps()
-    main._StartUp_()
-
+	Mem = Memory()
+	Cns   = Console()
+	Mem.SetUp()
+	
+	
+	
 Main()
